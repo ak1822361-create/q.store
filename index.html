@@ -27,7 +27,7 @@ button:disabled{opacity:.5;cursor:default}.hidden{display:none!important}.status
 .sizechips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.sizechip{border:1px solid #cbd5e1;border-radius:8px;padding:5px 8px;font-size:12px;background:#f8fafc}
 .item{border:1px solid var(--line);border-radius:11px;padding:12px;margin:9px 0}.item img{width:76px;height:76px;object-fit:cover;border-radius:9px}
 label{font-size:13px;color:#475569}hr{border:0;border-top:1px solid var(--line);margin:14px 0}
-.stockrow{display:grid;grid-template-columns:1fr 110px;gap:8px;align-items:center;margin:6px 0}
+.stockrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(90px,120px) auto;gap:8px;align-items:center;margin:8px 0;padding:9px;background:#f8fafc;border:1px solid var(--line);border-radius:10px}.stockrow input{margin:0}.stockrow button{padding:9px 12px}.sizes-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(90px,120px) auto;gap:8px;color:#64748b;font-size:12px;padding:0 9px}
 .preview{width:88px;height:88px;object-fit:cover;border-radius:10px;background:#f1f5f9;display:none}
 footer{text-align:center;color:#64748b;font-size:12px;padding:18px}
 @media(min-width:650px){.product img{height:210px}}
@@ -75,8 +75,11 @@ footer{text-align:center;color:#64748b;font-size:12px;padding:18px}
 <input id="editId" type="hidden">
 <div class="row"><div class="field"><label>اسم المنتج</label><input id="pName" placeholder="اسم المنتج"></div><div class="field"><label>السعر بالدينار</label><input id="pPrice" type="number" min="0" placeholder="السعر"></div></div>
 <label>صورة المنتج</label><input id="pImageFile" type="file" accept="image/*"><div class="row"><img id="pImagePreview" class="preview" alt="معاينة الصورة"><span class="muted">اختر صورة من هاتفك. يتم تصغيرها قبل حفظها.</span></div>
-<label>القياسات والكميات (كل قياس في سطر، مثال: 2-5)</label><textarea id="pSizesStock" rows="4" placeholder="2-5&#10;4-8&#10;6-3"></textarea>
-<div class="muted">في المثال: القياس 2 كميته 5، والقياس 4 كميته 8. يمكنك كتابة قياس-كمية في كل سطر.</div>
+<label>القياسات والكميات المتوفرة</label>
+<div class="sizes-head"><span>اسم القياس</span><span>الكمية</span><span>حذف</span></div>
+<div id="sizesEditor"></div>
+<button type="button" id="addSizeRow" class="secondary">＋ إضافة قياس</button>
+<div class="muted">أضف كل قياس في سطر مستقل، وحدد كمية المخزون الخاصة به.</div>
 <div class="row"><button id="saveProduct">حفظ المنتج</button><button id="clearProduct" class="secondary">تفريغ الحقول</button></div>
 <hr><h2>المخزون الحالي</h2><div id="productsList" class="muted">جارٍ تحميل المنتجات…</div>
 </div>
@@ -119,14 +122,15 @@ function sizesOf(p){
  return [{size:"غير موزع",qty:Number(p.qty)||0}];
 }
 function totalStock(p){return sizesOf(p).reduce((a,x)=>a+x.qty,0);}
-function parseSizeStock(raw){
- const out={};raw.split(/\n|,/).map(x=>x.trim()).filter(Boolean).forEach(line=>{
-  const m=line.match(/^(.+?)(?:\s*[-:：]\s*)(\d+)$/);
-  if(!m)throw Error("اكتب كل قياس بهذا الشكل: القياس-الكمية، مثال 4-8");
-  const size=m[1].trim(),qty=Number(m[2]);if(!size||!Number.isInteger(qty)||qty<0)throw Error("تحقق من القياسات والكميات");
-  out[size]=qty;
- });
- if(!Object.keys(out).length)throw Error("أضف قياساً واحداً على الأقل مع كميته");
+function addSizeRow(size="",qty=0){
+ const row=document.createElement("div");row.className="stockrow";
+ row.innerHTML='<input class="sizeName" type="text" maxlength="40" placeholder="مثال: 2 سنوات أو M" value="'+esc(size)+'"><input class="sizeQty" type="number" min="0" step="1" inputmode="numeric" placeholder="الكمية" value="'+Number(qty||0)+'"><button type="button" class="danger" aria-label="حذف القياس">حذف</button>';
+ row.querySelector("button").onclick=()=>row.remove();$("sizesEditor").appendChild(row);
+}
+function getSizeStock(){
+ const rows=[...document.querySelectorAll("#sizesEditor .stockrow")],out={};
+ if(!rows.length)throw Error("أضف قياساً واحداً على الأقل");
+ rows.forEach(row=>{const size=row.querySelector(".sizeName").value.trim(),raw=row.querySelector(".sizeQty").value,qty=Number(raw);if(!size||raw===""||!Number.isInteger(qty)||qty<0)throw Error("أدخل اسم وكمية صحيحة لكل قياس");if(Object.keys(out).some(x=>x.toLowerCase()===size.toLowerCase()))throw Error("لا تكرر اسم القياس نفسه");out[size]=qty;});
  return out;
 }
 function stockText(p){return sizesOf(p).map(x=>esc(x.size)+": "+x.qty).join(" · ");}
@@ -209,17 +213,19 @@ function renderAdminProducts(){
  const box=$("productsList");box.innerHTML="";if(!productsCache.length){box.textContent="لا توجد منتجات حالياً.";return;}
  productsCache.forEach(p=>{const el=document.createElement("div");el.className="item";el.innerHTML='<div class="row">'+(p.image?'<img src="'+p.image+'" alt="">':'')+'<div style="flex:1"><h3>'+esc(p.name)+'</h3><div>'+money(p.price)+'</div><small>'+stockText(p)+'</small></div></div><div class="row"><button class="secondary" data-edit>تعديل</button><button class="danger" data-delete>حذف</button></div>';el.querySelector("[data-edit]").onclick=()=>editProduct(p);el.querySelector("[data-delete]").onclick=()=>deleteProduct(p);box.appendChild(el)});
 }
-function resetProductForm(){["editId","pName","pPrice","pSizesStock"].forEach(id=>$(id).value="");$("pImageFile").value="";$("pImagePreview").style.display="none";productImage="";$("formTitle").textContent="إضافة منتج جديد";}
+function resetProductForm(){["editId","pName","pPrice"].forEach(id=>$(id).value="");$("sizesEditor").innerHTML="";addSizeRow();$("pImageFile").value="";$("pImagePreview").style.display="none";productImage="";$("formTitle").textContent="إضافة منتج جديد";}
+addSizeRow();
+$("addSizeRow").onclick=()=>addSizeRow();
 $("clearProduct").onclick=resetProductForm;
 function editProduct(p){
  $("editId").value=p.id;$("pName").value=p.name||"";$("pPrice").value=p.price||0;
- $("pSizesStock").value=sizesOf(p).map(x=>x.size+"-"+x.qty).join("\n");
+ $("sizesEditor").innerHTML="";sizesOf(p).forEach(x=>addSizeRow(x.size,x.qty));
  productImage=p.image||"";$("pImagePreview").src=productImage;$("pImagePreview").style.display=productImage?"block":"none";$("formTitle").textContent="تعديل المنتج: "+p.name;setTab("admin");setAdminTab("products");window.scrollTo({top:0,behavior:"smooth"});
 }
 $("saveProduct").onclick=async()=>{
  const name=$("pName").value.trim(),price=Number($("pPrice").value),id=$("editId").value;
  if(!name||!Number.isFinite(price)||price<0){msg("أدخل اسم المنتج والسعر بصورة صحيحة","error");return;}
- let sizeStock;try{sizeStock=parseSizeStock($("pSizesStock").value)}catch(e){msg(e.message,"error");return;}
+ let sizeStock;try{sizeStock=getSizeStock()}catch(e){msg(e.message,"error");return;}
  try{
   const data={name,price,sizeStock,qty:Object.values(sizeStock).reduce((a,b)=>a+b,0),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
   if(productImage)data.image=productImage;else if(id){const old=productsCache.find(p=>p.id===id);if(old?.image)data.image=old.image;}
