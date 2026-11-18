@@ -4,83 +4,94 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#172554">
-<title>Q.Store | المتجر الخاص</title>
+<title>Q.Store</title>
 <style>
-:root{--navy:#172554;--blue:#2563eb;--bg:#f4f6fb;--line:#e5e7eb;--red:#b91c1c;--green:#166534}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial;color:#172033}
-header{background:var(--navy);color:#fff;padding:18px 16px}header h1{margin:0;font-size:22px}header p{margin:5px 0 0;color:#dbeafe;font-size:13px}
-main{max-width:850px;margin:18px auto;padding:0 12px 40px}.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 8px #1725540a}
-h2{font-size:18px;margin:0 0 12px}.muted{color:#64748b;font-size:13px;line-height:1.7}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-input,textarea,select{font:inherit;width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;margin:5px 0 10px}
-button{font:inherit;border:0;border-radius:9px;padding:11px 14px;background:var(--blue);color:white;cursor:pointer}
+:root{--brand:#172554;--accent:#2563eb;--page:#f4f6fb;--ink:#172033;--line:#e5e7eb}
+*{box-sizing:border-box}body{margin:0;background:var(--page);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial;color:var(--ink)}
+header{background:var(--brand);color:white;padding:15px 16px;display:flex;align-items:center;gap:12px}
+#shopLogo{width:54px;height:54px;object-fit:cover;border-radius:12px;background:#ffffff22;display:none}
+header h1{margin:0;font-size:22px}header p{margin:4px 0 0;color:#e2e8f0;font-size:12px}
+main{max-width:1050px;margin:16px auto;padding:0 12px 42px}.card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:15px;margin:12px 0;box-shadow:0 2px 9px #1725540a}
+h2{font-size:18px;margin:0 0 12px}h3{font-size:16px;margin:0 0 6px}.muted{color:#64748b;font-size:13px;line-height:1.7}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.field{flex:1;min-width:130px}
+input,textarea,select{font:inherit;width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:9px;background:white;margin:5px 0 10px;color:var(--ink)}
+button{font:inherit;border:0;border-radius:9px;padding:11px 14px;background:var(--accent);color:white;cursor:pointer}
 button.secondary{background:#e2e8f0;color:#172033}button.danger{background:#b91c1c}button.good{background:#166534}
-button:disabled{opacity:.5;cursor:default}.field{flex:1;min-width:130px}.hidden{display:none!important}.status{padding:10px;border-radius:9px;background:#eff6ff;color:#1e40af;margin:10px 0;line-height:1.6;overflow-wrap:anywhere}
+button:disabled{opacity:.5;cursor:default}.hidden{display:none!important}.status{padding:10px;border-radius:9px;background:#eff6ff;color:#1e40af;margin:10px 0;line-height:1.6;overflow-wrap:anywhere}
 .error{background:#fef2f2;color:#991b1b}.success{background:#f0fdf4;color:#166534}
-.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}.tabs button{background:#e2e8f0;color:#172033}.tabs button.active{background:var(--navy);color:white}
-.item{border:1px solid var(--line);border-radius:10px;padding:12px;margin:9px 0}.item h3{margin:0 0 5px;font-size:16px}.item small{color:#64748b}.item .row{margin-top:8px}
-.badge{display:inline-block;background:#eef2ff;color:#3730a3;padding:3px 8px;border-radius:20px;font-size:12px}
-hr{border:0;border-top:1px solid var(--line);margin:14px 0}
-label{font-size:13px;color:#475569}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.tabs button{background:#e2e8f0;color:#172033}.tabs button.active{background:var(--brand);color:white}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px}
+.product{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:white}
+.product img{width:100%;height:160px;object-fit:cover;background:#f1f5f9;display:block}
+.product .body{padding:11px}.price{font-weight:800;color:var(--brand);margin:5px 0}
+.sizechips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.sizechip{border:1px solid #cbd5e1;border-radius:8px;padding:5px 8px;font-size:12px;background:#f8fafc}
+.item{border:1px solid var(--line);border-radius:11px;padding:12px;margin:9px 0}.item img{width:76px;height:76px;object-fit:cover;border-radius:9px}
+label{font-size:13px;color:#475569}hr{border:0;border-top:1px solid var(--line);margin:14px 0}
+.stockrow{display:grid;grid-template-columns:1fr 110px;gap:8px;align-items:center;margin:6px 0}
+.preview{width:88px;height:88px;object-fit:cover;border-radius:10px;background:#f1f5f9;display:none}
+footer{text-align:center;color:#64748b;font-size:12px;padding:18px}
+@media(min-width:650px){.product img{height:210px}}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 </head>
 <body>
-<header><h1>Q.Store</h1><p>إدارة خاصة للمخزون والطلبات — للأجهزة التي توافق عليها فقط</p></header>
+<header>
+<img id="shopLogo" alt="شعار المتجر">
+<div><h1 id="shopTitle">Q.Store</h1><p id="shopSubtitle">متجرك الخاص لإدارة المنتجات والطلبات</p></div>
+</header>
 <main>
-<section id="connecting" class="card"><h2>جارٍ الاتصال</h2><p class="muted">يتم تجهيز اتصال آمن بقاعدة بيانات متجرك…</p></section>
+<section id="connecting" class="card"><h2>جارٍ الاتصال</h2><p class="muted">يتم الاتصال بقاعدة بيانات المتجر…</p></section>
 <section id="setup" class="card hidden">
-<h2>تجهيز الهاتف الرئيسي</h2>
-<p class="muted">هذا معرّف هذا الهاتف في Firebase. احتفظ به مؤقتاً؛ ستضعه في قواعد Firestore مرة واحدة حتى يصبح هذا الهاتف هو المالك.</p>
-<div id="myUid" class="status"></div>
-<button id="copyUid" class="secondary">نسخ المعرّف</button>
-<hr>
-<p class="muted">أرسل هذا المعرّف لي أولاً. سأجهز لك قواعد Firestore التي تجعل هذا الهاتف هو المالك، وبعد نشرها اضغط «التحقق من اعتماد المالك».</p>
-<button id="makeOwner">التحقق من اعتماد المالك</button>
+<h2>تجهيز الهاتف الرئيسي</h2><p class="muted">معرّف هذا الهاتف في Firebase:</p><div id="myUid" class="status"></div>
+<button id="copyUid" class="secondary">نسخ المعرّف</button><hr>
+<p class="muted">بعد نشر قواعد Firestore التي اعتمدناها، اضغط زر التحقق.</p><button id="makeOwner">التحقق من اعتماد المالك</button>
 </section>
 <section id="waiting" class="card hidden">
-<h2>هذا الهاتف غير معتمد بعد</h2>
-<p class="muted">اطلب ربط هذا الهاتف. بعد ذلك افتح الهاتف الرئيسي ووافق على الطلب من قسم «الأجهزة».</p>
-<div id="deviceUid" class="status"></div>
-<label>اسم تعريفي للهاتف (اختياري)</label><input id="deviceName" placeholder="مثلاً: هاتفي الثاني">
-<button id="requestAccess">طلب ربط هذا الهاتف</button>
-<div id="requestState" class="muted"></div>
+<h2>هذا الهاتف غير معتمد بعد</h2><p class="muted">اطلب ربط الهاتف، ثم وافق عليه من الهاتف الرئيسي.</p>
+<div id="deviceUid" class="status"></div><label>اسم تعريفي للهاتف (اختياري)</label><input id="deviceName" placeholder="مثلاً: هاتف الإدارة الثاني">
+<button id="requestAccess">طلب ربط هذا الهاتف</button><div id="requestState" class="muted"></div>
 </section>
 <section id="app" class="hidden">
-<div class="card">
-<div class="row" style="justify-content:space-between"><div><h2 style="margin:0">لوحة المتجر</h2><span class="muted">متصل ومتزامن مع الأجهزة المعتمدة</span></div><span class="badge">Q.Store</span></div>
-<div class="tabs">
-<button class="active" data-tab="products">المنتجات</button>
-<button data-tab="orders">الطلبات المحجوزة</button>
-<button data-tab="devices">الأجهزة</button>
+<div class="tabs" id="mainTabs">
+<button class="active" data-main="store">واجهة المتجر</button>
+<button data-main="admin">الإدارة</button>
 </div>
-<div id="tab-products">
-<h2>إضافة منتج</h2>
-<div class="row">
-<div class="field"><label>اسم المنتج</label><input id="pName" placeholder="اسم المنتج"></div>
-<div class="field"><label>السعر</label><input id="pPrice" type="number" min="0" placeholder="السعر بالدينار"></div>
-<div class="field"><label>الكمية</label><input id="pQty" type="number" min="0" step="1" placeholder="الكمية"></div>
+<section id="storeView">
+<div class="card"><div class="row" style="justify-content:space-between"><div><h2 style="margin:0">منتجات المتجر</h2><span class="muted">اختر المنتج والقياس ثم أضفه إلى الطلب</span></div><span class="badge" id="storeCount"></span></div></div>
+<div id="customerProducts" class="grid"></div>
+<div class="card"><h2>سلة الطلب</h2><div id="cartList" class="muted">السلة فارغة.</div><div class="row" style="justify-content:space-between"><b>المجموع: <span id="cartTotal">0 د.ع</span></b><button id="submitCart">تأكيد الطلب وحجز الكميات</button></div><label>ملاحظة أو اسم صاحب الطلب</label><input id="cartNote" placeholder="اختياري"></div>
+</section>
+<section id="adminView" class="hidden">
+<div class="card"><div class="tabs" id="adminTabs">
+<button class="active" data-admin="products">المنتجات والمخزون</button>
+<button data-admin="orders">الطلبات</button>
+<button data-admin="settings">إعدادات المتجر</button>
+<button data-admin="devices" id="devicesTab">الأجهزة</button>
 </div>
-<label>المقاسات / القياسات (افصل بينها بفاصلة)</label><input id="pSizes" placeholder="مثلاً: 2, 4, 6, 8 أو S, M, L">
-<button id="addProduct">إضافة المنتج</button>
-<hr><h2>المخزون</h2><div id="productsList" class="muted">جارٍ تحميل المنتجات…</div>
+<div id="admin-products">
+<h2 id="formTitle">إضافة منتج جديد</h2>
+<input id="editId" type="hidden">
+<div class="row"><div class="field"><label>اسم المنتج</label><input id="pName" placeholder="اسم المنتج"></div><div class="field"><label>السعر بالدينار</label><input id="pPrice" type="number" min="0" placeholder="السعر"></div></div>
+<label>صورة المنتج</label><input id="pImageFile" type="file" accept="image/*"><div class="row"><img id="pImagePreview" class="preview" alt="معاينة الصورة"><span class="muted">اختر صورة من هاتفك. يتم تصغيرها قبل حفظها.</span></div>
+<label>القياسات والكميات (كل قياس في سطر، مثال: 2-5)</label><textarea id="pSizesStock" rows="4" placeholder="2-5&#10;4-8&#10;6-3"></textarea>
+<div class="muted">في المثال: القياس 2 كميته 5، والقياس 4 كميته 8. يمكنك كتابة قياس-كمية في كل سطر.</div>
+<div class="row"><button id="saveProduct">حفظ المنتج</button><button id="clearProduct" class="secondary">تفريغ الحقول</button></div>
+<hr><h2>المخزون الحالي</h2><div id="productsList" class="muted">جارٍ تحميل المنتجات…</div>
 </div>
-<div id="tab-orders" class="hidden">
-<h2>حجز طلب جديد</h2>
-<label>المنتج</label><select id="orderProduct"><option value="">اختر المنتج</option></select>
-<div class="row"><div class="field"><label>الكمية المحجوزة</label><input id="orderQty" type="number" min="1" step="1" value="1"></div><div class="field"><label>اسم أو ملاحظة للطلب</label><input id="orderNote" placeholder="اسم الزبون أو ملاحظة"></div></div>
-<button id="reserveOrder">تأكيد الحجز وخصم الكمية</button>
-<hr><h2>الطلبات المحجوزة</h2><div id="ordersList" class="muted">جارٍ تحميل الطلبات…</div>
+<div id="admin-orders" class="hidden"><h2>الطلبات</h2><div id="ordersList" class="muted">جارٍ تحميل الطلبات…</div></div>
+<div id="admin-settings" class="hidden">
+<h2>إعدادات المتجر</h2><label>اسم المتجر</label><input id="shopNameInput" placeholder="اسم المتجر">
+<label>صورة المتجر / الشعار</label><input id="shopLogoFile" type="file" accept="image/*"><img id="logoPreview" class="preview" alt="معاينة الشعار">
+<div class="row"><div class="field"><label>اللون الأساسي</label><input id="brandColor" type="color" value="#172554"></div><div class="field"><label>لون الأزرار</label><input id="accentColor" type="color" value="#2563eb"></div><div class="field"><label>لون الخلفية</label><input id="pageColor" type="color" value="#f4f6fb"></div></div>
+<button id="saveSettings">حفظ إعدادات المتجر</button><p class="muted">تظهر الإعدادات نفسها على جميع الهواتف المتصلة.</p>
 </div>
-<div id="tab-devices" class="hidden">
-<h2>طلبات ربط الأجهزة</h2><p class="muted">وافق فقط على الهواتف التي تملكها. لا تشارك رابط المتجر أو بيانات Firebase مع أشخاص آخرين.</p>
-<div id="requestsList" class="muted">جارٍ تحميل الطلبات…</div>
-<hr><h2>الأجهزة المعتمدة</h2><div id="approvedList" class="muted">جارٍ تحميل الأجهزة…</div>
-</div>
-</div>
+<div id="admin-devices" class="hidden"><h2>طلبات ربط الأجهزة</h2><div id="requestsList" class="muted">جارٍ التحميل…</div><hr><h2>الأجهزة المعتمدة</h2><div id="approvedList" class="muted">جارٍ التحميل…</div></div>
+</div></div>
 </section>
 <div id="globalMsg" class="status hidden"></div>
+<footer>Q.Store · متجر خاص ومتزامن بين أجهزتك</footer>
 </main>
 <script>
 const firebaseConfig = {
@@ -91,174 +102,157 @@ const firebaseConfig = {
   messagingSenderId: "925192594842",
   appId: "1:925192594842:web:188675dc9797582f764623"
 };
-
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-const $ = id => document.getElementById(id);
-let currentUser = null, unsubs = [];
-const ownerKey = "qstore_owner_uid";
-const show = id => $(id).classList.remove("hidden");
-const hide = id => $(id).classList.add("hidden");
-function msg(text, type="status"){ $("globalMsg").className="status "+(type==="error"?"error":type==="success"?"success":""); $("globalMsg").textContent=text; show("globalMsg"); }
-function clearListeners(){ unsubs.forEach(fn=>fn&&fn()); unsubs=[]; }
+const auth=firebase.auth(),db=firebase.firestore(),$=id=>document.getElementById(id);
+let currentUser=null,unsubs=[],ownerMode=false,productsCache=[],cart=[],productImage="",logoImage="";
+const ownerKey="qstore_owner_uid";
+const show=id=>$(id).classList.remove("hidden"),hide=id=>$(id).classList.add("hidden");
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function money(v){return Number(v||0).toLocaleString("en-US")+" د.ع";}
-function isLocalOwner(){return localStorage.getItem(ownerKey)===currentUser.uid;}
-function displayOnly(id){["connecting","setup","waiting","app"].forEach(x=>hide(x));show(id);}
-async function boot(){
- try{
-  await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-  if(!auth.currentUser) await auth.signInAnonymously();
- }catch(e){$("connecting").innerHTML="<h2>تعذر الاتصال</h2><p class='muted'>"+esc(e.message)+"</p><p class='muted'>تأكد من تفعيل Anonymous في Authentication ومن صحة إعدادات Firebase.</p>";return;}
- auth.onAuthStateChanged(async user=>{
-  if(!user)return; currentUser=user;
-  $("myUid").textContent=user.uid; $("deviceUid").textContent="معرّف الهاتف: "+user.uid;
-  await detectAccess();
+function msg(t,type="status"){$("globalMsg").className="status "+(type==="error"?"error":type==="success"?"success":"");$("globalMsg").textContent=t;show("globalMsg");}
+function displayOnly(id){["connecting","setup","waiting","app"].forEach(hide);show(id);}
+function stopListeners(){unsubs.forEach(f=>{try{f()}catch(e){}});unsubs=[];}
+function setTab(view){$("storeView").classList.toggle("hidden",view!=="store");$("adminView").classList.toggle("hidden",view!=="admin");document.querySelectorAll("[data-main]").forEach(b=>b.classList.toggle("active",b.dataset.main===view));}
+function setAdminTab(tab){["products","orders","settings","devices"].forEach(x=>$("admin-"+x).classList.toggle("hidden",x!==tab));document.querySelectorAll("[data-admin]").forEach(b=>b.classList.toggle("active",b.dataset.admin===tab));}
+function sizesOf(p){
+ if(p.sizeStock&&typeof p.sizeStock==="object")return Object.entries(p.sizeStock).map(([size,qty])=>({size,qty:Number(qty)||0}));
+ return [{size:"غير موزع",qty:Number(p.qty)||0}];
+}
+function totalStock(p){return sizesOf(p).reduce((a,x)=>a+x.qty,0);}
+function parseSizeStock(raw){
+ const out={};raw.split(/\n|,/).map(x=>x.trim()).filter(Boolean).forEach(line=>{
+  const m=line.match(/^(.+?)(?:\s*[-:：]\s*)(\d+)$/);
+  if(!m)throw Error("اكتب كل قياس بهذا الشكل: القياس-الكمية، مثال 4-8");
+  const size=m[1].trim(),qty=Number(m[2]);if(!size||!Number.isInteger(qty)||qty<0)throw Error("تحقق من القياسات والكميات");
+  out[size]=qty;
  });
+ if(!Object.keys(out).length)throw Error("أضف قياساً واحداً على الأقل مع كميته");
+ return out;
+}
+function stockText(p){return sizesOf(p).map(x=>esc(x.size)+": "+x.qty).join(" · ");}
+function applyTheme(s={}){
+ const root=document.documentElement;
+ root.style.setProperty("--brand",s.brandColor||"#172554");root.style.setProperty("--accent",s.accentColor||"#2563eb");root.style.setProperty("--page",s.pageColor||"#f4f6fb");
+ $("shopTitle").textContent=s.name||"Q.Store";document.title=(s.name||"Q.Store")+" | المتجر الخاص";
+ if(s.logo){$("shopLogo").src=s.logo;$("shopLogo").style.display="block";}else $("shopLogo").style.display="none";
+ $("shopNameInput").value=s.name||"Q.Store";$("brandColor").value=s.brandColor||"#172554";$("accentColor").value=s.accentColor||"#2563eb";$("pageColor").value=s.pageColor||"#f4f6fb";
+ logoImage=s.logo||"";
+}
+async function compressImage(file,max=600){
+ if(!file)return "";
+ if(!file.type.startsWith("image/"))throw Error("اختر ملف صورة");
+ const data=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)});
+ const img=await new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=reject;i.src=data});
+ const scale=Math.min(1,max/Math.max(img.width,img.height)),canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));
+ canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);return canvas.toDataURL("image/jpeg",.68);
+}
+$("pImageFile").onchange=async e=>{try{productImage=await compressImage(e.target.files[0],600);$("pImagePreview").src=productImage;$("pImagePreview").style.display=productImage?"block":"none";}catch(err){msg(err.message,"error")}};
+$("shopLogoFile").onchange=async e=>{try{logoImage=await compressImage(e.target.files[0],350);$("logoPreview").src=logoImage;$("logoPreview").style.display=logoImage?"block":"none";}catch(err){msg(err.message,"error")}};
+async function boot(){
+ try{await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);if(!auth.currentUser)await auth.signInAnonymously();}
+ catch(e){$("connecting").innerHTML="<h2>تعذر الاتصال</h2><p class='muted'>"+esc(e.message)+"</p><p class='muted'>تأكد من تفعيل Anonymous في Firebase.</p>";return;}
+ auth.onAuthStateChanged(async user=>{if(!user)return;currentUser=user;$("myUid").textContent=user.uid;$("deviceUid").textContent="معرّف الهاتف: "+user.uid;await detectAccess();});
 }
 async function detectAccess(){
  displayOnly("setup");
- try{
-  // Owner-only query: Firestore rules permit this query only for the configured owner UID.
-  await db.collection("pairingRequests").where("status","==","pending").limit(1).get();
-  openDashboard(true);
-  return;
- }catch(ownerError){}
- try{
-  const d=await db.collection("devices").doc(currentUser.uid).get();
-  if(d.exists){openDashboard(false);return;}
-  displayOnly("waiting");
-  const r=await db.collection("pairingRequests").doc(currentUser.uid).get();
-  if(r.exists)$("requestState").textContent="حالة الطلب: "+(r.data().status==="pending"?"بانتظار موافقة الهاتف الرئيسي":"تم إرسال الطلب");
- }catch(e){
-  displayOnly("setup");
-  msg("لم يتم اعتماد المالك في قواعد Firestore بعد، أو أن القواعد لم تُنشر. انسخ UID ثم أرسلْه لي لأجهز لك القواعد الصحيحة.","error");
- }
+ try{await db.collection("pairingRequests").where("status","==","pending").limit(1).get();ownerMode=true;openApp(true);return;}catch(e){}
+ try{const d=await db.collection("devices").doc(currentUser.uid).get();if(d.exists){ownerMode=false;openApp(false);return;}
+  displayOnly("waiting");const r=await db.collection("pairingRequests").doc(currentUser.uid).get();if(r.exists)$("requestState").textContent="حالة الطلب: بانتظار موافقة الهاتف الرئيسي";
+ }catch(e){displayOnly("setup");msg("لم يتم اعتماد الهاتف في قواعد Firestore أو تعذر الاتصال: "+e.message,"error");}
 }
-function openDashboard(owner){
- displayOnly("app");
- if(owner)loadOwnerViews(); else {hide("tab-devices"); document.querySelector('[data-tab="devices"]').classList.add("hidden");}
- loadProducts();loadOrders();
+function openApp(owner){
+ ownerMode=owner;displayOnly("app");if(!owner){hide("devicesTab");hide("admin-devices");}
+ setTab("store");setAdminTab("products");loadProducts();loadOrders();loadSettings();if(owner)loadOwnerViews();
 }
-$("copyUid").onclick=async()=>{try{await navigator.clipboard.writeText(currentUser.uid);msg("تم نسخ المعرّف","success");}catch(e){msg("حدد المعرّف وانسخه يدوياً.","error");}};
-$("makeOwner").onclick=async()=>{await detectAccess();};
-$("requestAccess").onclick=async()=>{
- try{
-  await db.collection("pairingRequests").doc(currentUser.uid).set({uid:currentUser.uid,name:$("deviceName").value.trim()||"هاتف إضافي",status:"pending",createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-  $("requestState").textContent="تم إرسال طلب الربط. انتظر موافقة الهاتف الرئيسي.";
-  msg("تم إرسال طلب ربط الهاتف.","success");
- }catch(e){msg("تعذر إرسال الطلب: "+e.message,"error");}
-};
-document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{
- document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));
- ["products","orders","devices"].forEach(t=>$( "tab-"+t).classList.toggle("hidden",b.dataset.tab!==t));
-});
-$("addProduct").onclick=async()=>{
- const name=$("pName").value.trim(),price=Number($("pPrice").value),qty=Number($("pQty").value);
- if(!name||!Number.isFinite(price)||price<0||!Number.isInteger(qty)||qty<0){msg("أدخل اسم المنتج والسعر والكمية بصورة صحيحة.","error");return;}
- try{
-  await db.collection("products").add({name,price,qty,sizes:$("pSizes").value.trim(),createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-  ["pName","pPrice","pQty","pSizes"].forEach(id=>$(id).value="");msg("تمت إضافة المنتج.","success");
- }catch(e){msg("تعذرت إضافة المنتج: "+e.message,"error");}
-};
+$("copyUid").onclick=async()=>{try{await navigator.clipboard.writeText(currentUser.uid);msg("تم نسخ المعرّف","success")}catch(e){msg("انسخ المعرّف يدوياً: "+currentUser.uid,"error")}};
+$("makeOwner").onclick=detectAccess;
+$("requestAccess").onclick=async()=>{try{await db.collection("pairingRequests").doc(currentUser.uid).set({uid:currentUser.uid,name:$("deviceName").value.trim()||"هاتف إضافي",status:"pending",createdAt:firebase.firestore.FieldValue.serverTimestamp()});$("requestState").textContent="تم إرسال الطلب، انتظر موافقة الهاتف الرئيسي.";msg("تم إرسال طلب الربط","success")}catch(e){msg("تعذر إرسال الطلب: "+e.message,"error")}};
+document.querySelectorAll("[data-main]").forEach(b=>b.onclick=()=>setTab(b.dataset.main));
+document.querySelectorAll("[data-admin]").forEach(b=>b.onclick=()=>setAdminTab(b.dataset.admin));
 function loadProducts(){
- const unsub=db.collection("products").orderBy("createdAt","desc").onSnapshot(s=>{
-  const list=$("productsList"),sel=$("orderProduct");list.innerHTML="";sel.innerHTML='<option value="">اختر المنتج</option>';
-  if(s.empty)list.textContent="لا توجد منتجات حتى الآن.";
-  s.forEach(doc=>{
-   const p=doc.data(),id=doc.id;
-   const opt=document.createElement("option");opt.value=id;opt.textContent=p.name+" — المتوفر: "+p.qty;sel.appendChild(opt);
-   const el=document.createElement("div");el.className="item";
-   el.innerHTML="<h3>"+esc(p.name)+"</h3><div>"+money(p.price)+" · الكمية: <b>"+Number(p.qty||0)+"</b></div><small>المقاسات: "+esc(p.sizes||"غير محددة")+"</small><div class='row'><button class='secondary' data-act='edit'>تعديل</button><button class='secondary' data-act='plus'>+1</button><button class='secondary' data-act='minus'>-1</button><button class='danger' data-act='delete'>حذف</button></div>";
-   el.querySelector('[data-act="edit"]').onclick=()=>editProduct(id,p);
-   el.querySelector('[data-act="plus"]').onclick=()=>changeQty(id,1);
-   el.querySelector('[data-act="minus"]').onclick=()=>changeQty(id,-1);
-   el.querySelector('[data-act="delete"]').onclick=()=>deleteProduct(id,p.name);
-   list.appendChild(el);
-  });
- },e=>msg("خطأ تحميل المنتجات: "+e.message,"error"));unsubs.push(unsub);
+ const un=db.collection("products").onSnapshot(s=>{
+  productsCache=s.docs.map(d=>({id:d.id,...d.data()}));renderStore();renderAdminProducts();
+ },e=>msg("تعذر تحميل المنتجات: "+e.message,"error"));unsubs.push(un);
 }
-async function editProduct(id,p){
- const name=prompt("اسم المنتج:",p.name);if(name===null)return;
- const price=prompt("السعر:",p.price);if(price===null)return;
- const qty=prompt("الكمية:",p.qty);if(qty===null)return;
- const sizes=prompt("المقاسات:",p.sizes||"");if(sizes===null)return;
- if(!name.trim()||!Number.isFinite(Number(price))||!Number.isInteger(Number(qty))||Number(qty)<0){msg("بيانات غير صحيحة.","error");return;}
- try{await db.collection("products").doc(id).update({name:name.trim(),price:Number(price),qty:Number(qty),sizes,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});msg("تم تحديث المنتج.","success");}catch(e){msg(e.message,"error");}
+function renderStore(){
+ const box=$("customerProducts");box.innerHTML="";$("storeCount").textContent=productsCache.length+" منتج";
+ if(!productsCache.length){box.innerHTML='<p class="muted">لا توجد منتجات مضافة بعد.</p>';return;}
+ productsCache.forEach(p=>{
+  const sizes=sizesOf(p),el=document.createElement("article");el.className="product";
+  const image=p.image?'<img src="'+p.image+'" alt="'+esc(p.name)+'">':'<div style="height:160px;display:grid;place-items:center;background:#f1f5f9;color:#64748b">لا توجد صورة</div>';
+  el.innerHTML=image+'<div class="body"><h3>'+esc(p.name)+'</h3><div class="price">'+money(p.price)+'</div><label>القياس</label><select class="chooseSize">'+sizes.map(x=>'<option value="'+esc(x.size)+'" '+(x.qty<1?"disabled":"")+'>'+esc(x.size)+' — المتوفر '+x.qty+'</option>').join("")+'</select><label>الكمية</label><input class="chooseQty" type="number" min="1" max="99" value="1"><button class="addCart" style="width:100%">إضافة إلى السلة</button></div>';
+  const btn=el.querySelector(".addCart");btn.disabled=!sizes.some(x=>x.qty>0);btn.onclick=()=>{const size=el.querySelector(".chooseSize").value,qty=Number(el.querySelector(".chooseQty").value),stock=sizes.find(x=>x.size===size)?.qty||0;if(!Number.isInteger(qty)||qty<1||qty>stock){msg("الكمية المطلوبة غير متوفرة لهذا القياس","error");return;}const old=cart.find(x=>x.productId===p.id&&x.size===size);if(old){if(old.qty+qty>stock){msg("تجاوزت الكمية المتوفرة","error");return;}old.qty+=qty;}else cart.push({productId:p.id,name:p.name,price:Number(p.price)||0,size,qty});renderCart();msg("أضيف المنتج إلى السلة","success");};
+  box.appendChild(el);
+ });
 }
-async function changeQty(id,delta){
- try{await db.runTransaction(async tx=>{const ref=db.collection("products").doc(id),d=await tx.get(ref);if(!d.exists)throw Error("المنتج غير موجود");const n=Number(d.data().qty||0)+delta;if(n<0)throw Error("لا يمكن أن تصبح الكمية سالبة");tx.update(ref,{qty:n,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});});}catch(e){msg(e.message,"error");}
+function renderCart(){
+ const box=$("cartList");box.innerHTML="";if(!cart.length)box.textContent="السلة فارغة.";
+ cart.forEach((x,i)=>{const d=document.createElement("div");d.className="item";d.innerHTML="<b>"+esc(x.name)+"</b> — "+esc(x.size)+" · "+x.qty+" × "+money(x.price)+" <button class='danger' style='float:left;padding:5px 9px' data-remove>حذف</button>";d.querySelector("[data-remove]").onclick=()=>{cart.splice(i,1);renderCart()};box.appendChild(d)});
+ $("cartTotal").textContent=money(cart.reduce((a,x)=>a+x.qty*x.price,0));
 }
-async function deleteProduct(id,name){
- if(!confirm("هل تريد حذف المنتج: "+name+" ؟"))return;
- try{await db.collection("products").doc(id).delete();msg("تم حذف المنتج.","success");}catch(e){msg(e.message,"error");}
-}
-$("reserveOrder").onclick=async()=>{
- const pid=$("orderProduct").value,qty=Number($("orderQty").value),note=$("orderNote").value.trim();
- if(!pid||!Number.isInteger(qty)||qty<1){msg("اختر منتجاً وأدخل كمية صحيحة.","error");return;}
+$("submitCart").onclick=async()=>{
+ if(!cart.length){msg("السلة فارغة","error");return;}
+ const note=$("cartNote").value.trim();
  try{
   await db.runTransaction(async tx=>{
-   const pref=db.collection("products").doc(pid),pdoc=await tx.get(pref);
-   if(!pdoc.exists)throw Error("المنتج غير موجود");
-   const p=pdoc.data(),available=Number(p.qty||0);if(available<qty)throw Error("الكمية المتوفرة غير كافية");
-   const counterRef=db.collection("settings").doc("orderCounter"),counter=await tx.get(counterRef);
-   const next=(counter.exists?Number(counter.data().value||0):0)+1;
-   const orderRef=db.collection("orders").doc();
-   tx.update(pref,{qty:available-qty,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+   const counterRef=db.collection("settings").doc("orderCounter"),counter=await tx.get(counterRef);let next=(counter.exists?Number(counter.data().value)||0:0);
+   const refs=cart.map(x=>({item:x,ref:db.collection("products").doc(x.productId)}));
+   const docs=[];for(const r of refs)docs.push(await tx.get(r.ref));
+   docs.forEach((d,i)=>{if(!d.exists)throw Error("أحد المنتجات لم يعد موجوداً");const p=d.data(),stock=sizesOf(p).find(z=>z.size===refs[i].item.size)?.qty||0;if(stock<refs[i].item.qty)throw Error("الكمية لم تعد متوفرة للقياس "+refs[i].item.size);});
+   refs.forEach((r,i)=>{const p=docs[i].data(),stock=sizesOf(p),entry=stock.find(z=>z.size===r.item.size);const map={};stock.forEach(z=>map[z.size]=z.qty);map[r.item.size]-=r.item.qty;tx.update(r.ref,{sizeStock:map,qty:Object.values(map).reduce((a,b)=>a+b,0),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});next++;const orderRef=db.collection("orders").doc();tx.set(orderRef,{sequence:next,productId:r.item.productId,productName:p.name,size:r.item.size,price:Number(p.price)||0,qty:r.item.qty,note,status:"محجوز",createdAt:firebase.firestore.FieldValue.serverTimestamp()});});
    tx.set(counterRef,{value:next});
-   tx.set(orderRef,{sequence:next,productId:pid,productName:p.name,price:Number(p.price||0),qty,note,status:"محجوز",createdAt:firebase.firestore.FieldValue.serverTimestamp()});
   });
-  $("orderQty").value="1";$("orderNote").value="";msg("تم حجز الطلب وخصم الكمية تلقائياً.","success");
- }catch(e){msg("تعذر الحجز: "+e.message,"error");}
+  cart=[];renderCart();$("cartNote").value="";msg("تم تأكيد الطلب وحجز الكميات لكل قياس","success");
+ }catch(e){msg("لم يكتمل الطلب: "+e.message,"error");}
 };
+function renderAdminProducts(){
+ const box=$("productsList");box.innerHTML="";if(!productsCache.length){box.textContent="لا توجد منتجات حالياً.";return;}
+ productsCache.forEach(p=>{const el=document.createElement("div");el.className="item";el.innerHTML='<div class="row">'+(p.image?'<img src="'+p.image+'" alt="">':'')+'<div style="flex:1"><h3>'+esc(p.name)+'</h3><div>'+money(p.price)+'</div><small>'+stockText(p)+'</small></div></div><div class="row"><button class="secondary" data-edit>تعديل</button><button class="danger" data-delete>حذف</button></div>';el.querySelector("[data-edit]").onclick=()=>editProduct(p);el.querySelector("[data-delete]").onclick=()=>deleteProduct(p);box.appendChild(el)});
+}
+function resetProductForm(){["editId","pName","pPrice","pSizesStock"].forEach(id=>$(id).value="");$("pImageFile").value="";$("pImagePreview").style.display="none";productImage="";$("formTitle").textContent="إضافة منتج جديد";}
+$("clearProduct").onclick=resetProductForm;
+function editProduct(p){
+ $("editId").value=p.id;$("pName").value=p.name||"";$("pPrice").value=p.price||0;
+ $("pSizesStock").value=sizesOf(p).map(x=>x.size+"-"+x.qty).join("\n");
+ productImage=p.image||"";$("pImagePreview").src=productImage;$("pImagePreview").style.display=productImage?"block":"none";$("formTitle").textContent="تعديل المنتج: "+p.name;setTab("admin");setAdminTab("products");window.scrollTo({top:0,behavior:"smooth"});
+}
+$("saveProduct").onclick=async()=>{
+ const name=$("pName").value.trim(),price=Number($("pPrice").value),id=$("editId").value;
+ if(!name||!Number.isFinite(price)||price<0){msg("أدخل اسم المنتج والسعر بصورة صحيحة","error");return;}
+ let sizeStock;try{sizeStock=parseSizeStock($("pSizesStock").value)}catch(e){msg(e.message,"error");return;}
+ try{
+  const data={name,price,sizeStock,qty:Object.values(sizeStock).reduce((a,b)=>a+b,0),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  if(productImage)data.image=productImage;else if(id){const old=productsCache.find(p=>p.id===id);if(old?.image)data.image=old.image;}
+  if(id)await db.collection("products").doc(id).update(data);else await db.collection("products").add({...data,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  resetProductForm();msg(id?"تم تحديث المنتج":"تمت إضافة المنتج","success");
+ }catch(e){msg("تعذر حفظ المنتج: "+e.message,"error");}
+};
+async function deleteProduct(p){if(!confirm("حذف المنتج "+p.name+"؟"))return;try{await db.collection("products").doc(p.id).delete();msg("تم حذف المنتج","success")}catch(e){msg(e.message,"error")}}
 function loadOrders(){
- const unsub=db.collection("orders").orderBy("sequence","desc").onSnapshot(s=>{
-  const list=$("ordersList");list.innerHTML="";if(s.empty){list.textContent="لا توجد طلبات محجوزة.";return;}
-  s.forEach(doc=>{const o=doc.data(),el=document.createElement("div");el.className="item";
-   el.innerHTML="<h3>طلب رقم #"+Number(o.sequence||0)+" — "+esc(o.productName||"منتج")+"</h3><div>الكمية: "+Number(o.qty||0)+" · "+money(o.price)+"</div><small>"+esc(o.note||"دون ملاحظة")+" · الحالة: "+esc(o.status||"محجوز")+"</small><div class='row'><button class='good' data-done>إكمال الطلب</button><button class='danger' data-cancel>إلغاء وإرجاع الكمية</button></div>";
-   el.querySelector("[data-done]").onclick=()=>finishOrder(doc.id,o);
-   el.querySelector("[data-cancel]").onclick=()=>cancelOrder(doc.id,o);
-   list.appendChild(el);
-  });
- },e=>msg("خطأ تحميل الطلبات: "+e.message,"error"));unsubs.push(unsub);
+ const un=db.collection("orders").orderBy("sequence","desc").onSnapshot(s=>{const box=$("ordersList");box.innerHTML="";if(s.empty){box.textContent="لا توجد طلبات.";return;}
+ s.forEach(d=>{const o=d.data(),el=document.createElement("div");el.className="item";el.innerHTML="<h3>طلب #"+Number(o.sequence||0)+" — "+esc(o.productName||"منتج")+"</h3><div>القياس: "+esc(o.size||"غير محدد")+" · الكمية: "+Number(o.qty||0)+" · "+money(o.price)+"</div><small>"+esc(o.note||"دون ملاحظة")+" · الحالة: "+esc(o.status||"محجوز")+"</small><div class='row'><button class='good' data-done>إكمال</button><button class='danger' data-cancel>إلغاء وإرجاع المخزون</button></div>";
+  el.querySelector("[data-done]").onclick=()=>finishOrder(d.id,o);el.querySelector("[data-cancel]").onclick=()=>cancelOrder(d.id,o);box.appendChild(el)});
+ },e=>msg("تعذر تحميل الطلبات: "+e.message,"error"));unsubs.push(un);
 }
-async function finishOrder(id,o){
- if(!confirm("تأكيد إكمال الطلب رقم "+o.sequence+"؟"))return;
- try{await db.collection("orders").doc(id).update({status:"مكتمل",completedAt:firebase.firestore.FieldValue.serverTimestamp()});msg("تم تحديث حالة الطلب.","success");}catch(e){msg(e.message,"error");}
-}
+async function finishOrder(id,o){if(o.status!=="محجوز")return;try{await db.collection("orders").doc(id).update({status:"مكتمل",completedAt:firebase.firestore.FieldValue.serverTimestamp()});msg("تم إكمال الطلب","success")}catch(e){msg(e.message,"error")}}
 async function cancelOrder(id,o){
- if(!confirm("إلغاء الطلب وإرجاع الكمية إلى المخزون؟"))return;
- try{
-  await db.runTransaction(async tx=>{
-   const orderRef=db.collection("orders").doc(id),productRef=db.collection("products").doc(o.productId);
-   const od=await tx.get(orderRef);if(!od.exists||od.data().status==="ملغى")throw Error("الطلب ملغى أو غير موجود");
-   const pd=await tx.get(productRef);
-   if(pd.exists)tx.update(productRef,{qty:Number(pd.data().qty||0)+Number(o.qty||0),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-   tx.update(orderRef,{status:"ملغى",cancelledAt:firebase.firestore.FieldValue.serverTimestamp()});
-  });msg("تم إلغاء الطلب وإرجاع الكمية.","success");
- }catch(e){msg(e.message,"error");}
+ if(o.status!=="محجوز"){msg("هذا الطلب ليس بحالة حجز","error");return;}
+ if(!confirm("إلغاء الطلب وإرجاع الكمية؟"))return;
+ try{await db.runTransaction(async tx=>{const or=db.collection("orders").doc(id),pr=db.collection("products").doc(o.productId),od=await tx.get(or),pd=await tx.get(pr);if(!od.exists||od.data().status!=="محجوز")throw Error("حالة الطلب تغيرت");if(pd.exists){const p=pd.data(),map={};sizesOf(p).forEach(x=>map[x.size]=x.qty);const size=o.size||"غير موزع";map[size]=(map[size]||0)+Number(o.qty||0);tx.update(pr,{sizeStock:map,qty:Object.values(map).reduce((a,b)=>a+b,0),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});}tx.update(or,{status:"ملغى",cancelledAt:firebase.firestore.FieldValue.serverTimestamp()})});msg("تم إلغاء الطلب وإرجاع الكمية","success")}catch(e){msg(e.message,"error")}
 }
+function loadSettings(){
+ const un=db.collection("settings").doc("shopProfile").onSnapshot(d=>{applyTheme(d.exists?d.data():{})},e=>msg("تعذر تحميل إعدادات المتجر: "+e.message,"error"));unsubs.push(un);
+}
+$("saveSettings").onclick=async()=>{
+ const data={name:$("shopNameInput").value.trim()||"Q.Store",brandColor:$("brandColor").value,accentColor:$("accentColor").value,pageColor:$("pageColor").value,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+ if(logoImage)data.logo=logoImage;
+ try{await db.collection("settings").doc("shopProfile").set(data,{merge:true});msg("تم حفظ إعدادات المتجر على جميع الأجهزة","success")}catch(e){msg("تعذر حفظ الإعدادات: "+e.message,"error")}
+};
 function loadOwnerViews(){
- const r1=db.collection("pairingRequests").where("status","==","pending").onSnapshot(s=>{
-  const box=$("requestsList");box.innerHTML="";if(s.empty){box.textContent="لا توجد طلبات ربط جديدة.";return;}
-  s.forEach(d=>{const x=d.data(),el=document.createElement("div");el.className="item";
-   el.innerHTML="<b>"+esc(x.name||"هاتف")+"</b><p class='muted'>UID: "+esc(x.uid)+"</p><button class='good'>الموافقة على الربط</button>";
-   el.querySelector("button").onclick=()=>approveDevice(d.id,x.name||"هاتف");box.appendChild(el);
-  });
- },e=>msg("تعذر قراءة طلبات الأجهزة: "+e.message,"error"));unsubs.push(r1);
- const r2=db.collection("devices").onSnapshot(s=>{
-  const box=$("approvedList");box.innerHTML="";if(s.empty){box.textContent="لا توجد أجهزة إضافية معتمدة.";return;}
-  s.forEach(d=>{const el=document.createElement("div");el.className="item";el.textContent=(d.data().name||"هاتف")+" — "+d.id;box.appendChild(el);});
- },e=>msg("تعذر قراءة الأجهزة: "+e.message,"error"));unsubs.push(r2);
+ const u1=db.collection("pairingRequests").where("status","==","pending").onSnapshot(s=>{const box=$("requestsList");box.innerHTML="";if(s.empty){box.textContent="لا توجد طلبات ربط جديدة.";return;}s.forEach(d=>{const x=d.data(),el=document.createElement("div");el.className="item";el.innerHTML="<b>"+esc(x.name||"هاتف")+"</b><p class='muted'>UID: "+esc(x.uid)+"</p><button class='good'>الموافقة على الربط</button>";el.querySelector("button").onclick=()=>approveDevice(d.id,x.name||"هاتف");box.appendChild(el)})},e=>msg("تعذر قراءة طلبات الأجهزة: "+e.message,"error"));unsubs.push(u1);
+ const u2=db.collection("devices").onSnapshot(s=>{const box=$("approvedList");box.innerHTML="";if(s.empty){box.textContent="لا توجد أجهزة إضافية معتمدة.";return;}s.forEach(d=>{const el=document.createElement("div");el.className="item";el.textContent=(d.data().name||"هاتف")+" — "+d.id;box.appendChild(el)})},e=>msg("تعذر قراءة الأجهزة: "+e.message,"error"));unsubs.push(u2);
 }
-async function approveDevice(uid,name){
- try{
-  await db.collection("devices").doc(uid).set({uid,name,approvedAt:firebase.firestore.FieldValue.serverTimestamp()});
-  await db.collection("pairingRequests").doc(uid).delete();
-  msg("تم اعتماد الجهاز. يمكنه الآن فتح المتجر.","success");
- }catch(e){msg("تعذرت الموافقة: "+e.message,"error");}
-}
+async function approveDevice(uid,name){try{await db.collection("devices").doc(uid).set({uid,name,approvedAt:firebase.firestore.FieldValue.serverTimestamp()});await db.collection("pairingRequests").doc(uid).delete();msg("تم اعتماد الهاتف","success")}catch(e){msg("تعذرت الموافقة: "+e.message,"error")}}
 boot();
 </script>
 </body>
