@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#172554">
+<title>Q.Store | المتجر الخاص</title>
+<style>
+:root{--navy:#172554;--blue:#2563eb;--bg:#f4f6fb;--line:#e5e7eb;--red:#b91c1c;--green:#166534}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial;color:#172033}
+header{background:var(--navy);color:#fff;padding:18px 16px}header h1{margin:0;font-size:22px}header p{margin:5px 0 0;color:#dbeafe;font-size:13px}
+main{max-width:850px;margin:18px auto;padding:0 12px 40px}.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 8px #1725540a}
+h2{font-size:18px;margin:0 0 12px}.muted{color:#64748b;font-size:13px;line-height:1.7}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input,textarea,select{font:inherit;width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:9px;background:#fff;margin:5px 0 10px}
+button{font:inherit;border:0;border-radius:9px;padding:11px 14px;background:var(--blue);color:white;cursor:pointer}
+button.secondary{background:#e2e8f0;color:#172033}button.danger{background:#b91c1c}button.good{background:#166534}
+button:disabled{opacity:.5;cursor:default}.field{flex:1;min-width:130px}.hidden{display:none!important}.status{padding:10px;border-radius:9px;background:#eff6ff;color:#1e40af;margin:10px 0;line-height:1.6;overflow-wrap:anywhere}
+.error{background:#fef2f2;color:#991b1b}.success{background:#f0fdf4;color:#166534}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}.tabs button{background:#e2e8f0;color:#172033}.tabs button.active{background:var(--navy);color:white}
+.item{border:1px solid var(--line);border-radius:10px;padding:12px;margin:9px 0}.item h3{margin:0 0 5px;font-size:16px}.item small{color:#64748b}.item .row{margin-top:8px}
+.badge{display:inline-block;background:#eef2ff;color:#3730a3;padding:3px 8px;border-radius:20px;font-size:12px}
+hr{border:0;border-top:1px solid var(--line);margin:14px 0}
+label{font-size:13px;color:#475569}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<header><h1>Q.Store</h1><p>إدارة خاصة للمخزون والطلبات — للأجهزة التي توافق عليها فقط</p></header>
+<main>
+<section id="connecting" class="card"><h2>جارٍ الاتصال</h2><p class="muted">يتم تجهيز اتصال آمن بقاعدة بيانات متجرك…</p></section>
+<section id="setup" class="card hidden">
+<h2>تجهيز الهاتف الرئيسي</h2>
+<p class="muted">هذا معرّف هذا الهاتف في Firebase. احتفظ به مؤقتاً؛ ستضعه في قواعد Firestore مرة واحدة حتى يصبح هذا الهاتف هو المالك.</p>
+<div id="myUid" class="status"></div>
+<button id="copyUid" class="secondary">نسخ المعرّف</button>
+<hr>
+<p class="muted">أرسل هذا المعرّف لي أولاً. سأجهز لك قواعد Firestore التي تجعل هذا الهاتف هو المالك، وبعد نشرها اضغط «التحقق من اعتماد المالك».</p>
+<button id="makeOwner">التحقق من اعتماد المالك</button>
+</section>
+<section id="waiting" class="card hidden">
+<h2>هذا الهاتف غير معتمد بعد</h2>
+<p class="muted">اطلب ربط هذا الهاتف. بعد ذلك افتح الهاتف الرئيسي ووافق على الطلب من قسم «الأجهزة».</p>
+<div id="deviceUid" class="status"></div>
+<label>اسم تعريفي للهاتف (اختياري)</label><input id="deviceName" placeholder="مثلاً: هاتفي الثاني">
+<button id="requestAccess">طلب ربط هذا الهاتف</button>
+<div id="requestState" class="muted"></div>
+</section>
+<section id="app" class="hidden">
+<div class="card">
+<div class="row" style="justify-content:space-between"><div><h2 style="margin:0">لوحة المتجر</h2><span class="muted">متصل ومتزامن مع الأجهزة المعتمدة</span></div><span class="badge">Q.Store</span></div>
+<div class="tabs">
+<button class="active" data-tab="products">المنتجات</button>
+<button data-tab="orders">الطلبات المحجوزة</button>
+<button data-tab="devices">الأجهزة</button>
+</div>
+<div id="tab-products">
+<h2>إضافة منتج</h2>
+<div class="row">
+<div class="field"><label>اسم المنتج</label><input id="pName" placeholder="اسم المنتج"></div>
+<div class="field"><label>السعر</label><input id="pPrice" type="number" min="0" placeholder="السعر بالدينار"></div>
+<div class="field"><label>الكمية</label><input id="pQty" type="number" min="0" step="1" placeholder="الكمية"></div>
+</div>
+<label>المقاسات / القياسات (افصل بينها بفاصلة)</label><input id="pSizes" placeholder="مثلاً: 2, 4, 6, 8 أو S, M, L">
+<button id="addProduct">إضافة المنتج</button>
+<hr><h2>المخزون</h2><div id="productsList" class="muted">جارٍ تحميل المنتجات…</div>
+</div>
+<div id="tab-orders" class="hidden">
+<h2>حجز طلب جديد</h2>
+<label>المنتج</label><select id="orderProduct"><option value="">اختر المنتج</option></select>
+<div class="row"><div class="field"><label>الكمية المحجوزة</label><input id="orderQty" type="number" min="1" step="1" value="1"></div><div class="field"><label>اسم أو ملاحظة للطلب</label><input id="orderNote" placeholder="اسم الزبون أو ملاحظة"></div></div>
+<button id="reserveOrder">تأكيد الحجز وخصم الكمية</button>
+<hr><h2>الطلبات المحجوزة</h2><div id="ordersList" class="muted">جارٍ تحميل الطلبات…</div>
+</div>
+<div id="tab-devices" class="hidden">
+<h2>طلبات ربط الأجهزة</h2><p class="muted">وافق فقط على الهواتف التي تملكها. لا تشارك رابط المتجر أو بيانات Firebase مع أشخاص آخرين.</p>
+<div id="requestsList" class="muted">جارٍ تحميل الطلبات…</div>
+<hr><h2>الأجهزة المعتمدة</h2><div id="approvedList" class="muted">جارٍ تحميل الأجهزة…</div>
+</div>
+</div>
+</section>
+<div id="globalMsg" class="status hidden"></div>
+</main>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDKfskosPCdykqoryE3xUsfrpGN36SJ34o",
+  authDomain: "qamn-2001.firebaseapp.com",
+  projectId: "qamn-2001",
+  storageBucket: "qamn-2001.firebasestorage.app",
+  messagingSenderId: "925192594842",
+  appId: "1:925192594842:web:188675dc9797582f764623"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const $ = id => document.getElementById(id);
+let currentUser = null, unsubs = [];
+const ownerKey = "qstore_owner_uid";
+const show = id => $(id).classList.remove("hidden");
+const hide = id => $(id).classList.add("hidden");
+function msg(text, type="status"){ $("globalMsg").className="status "+(type==="error"?"error":type==="success"?"success":""); $("globalMsg").textContent=text; show("globalMsg"); }
+function clearListeners(){ unsubs.forEach(fn=>fn&&fn()); unsubs=[]; }
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function money(v){return Number(v||0).toLocaleString("en-US")+" د.ع";}
+function isLocalOwner(){return localStorage.getItem(ownerKey)===currentUser.uid;}
+function displayOnly(id){["connecting","setup","waiting","app"].forEach(x=>hide(x));show(id);}
+async function boot(){
+ try{
+  await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+  if(!auth.currentUser) await auth.signInAnonymously();
+ }catch(e){$("connecting").innerHTML="<h2>تعذر الاتصال</h2><p class='muted'>"+esc(e.message)+"</p><p class='muted'>تأكد من تفعيل Anonymous في Authentication ومن صحة إعدادات Firebase.</p>";return;}
+ auth.onAuthStateChanged(async user=>{
+  if(!user)return; currentUser=user;
+  $("myUid").textContent=user.uid; $("deviceUid").textContent="معرّف الهاتف: "+user.uid;
+  await detectAccess();
+ });
+}
+async function detectAccess(){
+ displayOnly("setup");
+ try{
+  // Owner-only query: Firestore rules permit this query only for the configured owner UID.
+  await db.collection("pairingRequests").where("status","==","pending").limit(1).get();
+  openDashboard(true);
+  return;
+ }catch(ownerError){}
+ try{
+  const d=await db.collection("devices").doc(currentUser.uid).get();
+  if(d.exists){openDashboard(false);return;}
+  displayOnly("waiting");
+  const r=await db.collection("pairingRequests").doc(currentUser.uid).get();
+  if(r.exists)$("requestState").textContent="حالة الطلب: "+(r.data().status==="pending"?"بانتظار موافقة الهاتف الرئيسي":"تم إرسال الطلب");
+ }catch(e){
+  displayOnly("setup");
+  msg("لم يتم اعتماد المالك في قواعد Firestore بعد، أو أن القواعد لم تُنشر. انسخ UID ثم أرسلْه لي لأجهز لك القواعد الصحيحة.","error");
+ }
+}
+function openDashboard(owner){
+ displayOnly("app");
+ if(owner)loadOwnerViews(); else {hide("tab-devices"); document.querySelector('[data-tab="devices"]').classList.add("hidden");}
+ loadProducts();loadOrders();
+}
+$("copyUid").onclick=async()=>{try{await navigator.clipboard.writeText(currentUser.uid);msg("تم نسخ المعرّف","success");}catch(e){msg("حدد المعرّف وانسخه يدوياً.","error");}};
+$("makeOwner").onclick=async()=>{await detectAccess();};
+$("requestAccess").onclick=async()=>{
+ try{
+  await db.collection("pairingRequests").doc(currentUser.uid).set({uid:currentUser.uid,name:$("deviceName").value.trim()||"هاتف إضافي",status:"pending",createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  $("requestState").textContent="تم إرسال طلب الربط. انتظر موافقة الهاتف الرئيسي.";
+  msg("تم إرسال طلب ربط الهاتف.","success");
+ }catch(e){msg("تعذر إرسال الطلب: "+e.message,"error");}
+};
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{
+ document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x===b));
+ ["products","orders","devices"].forEach(t=>$( "tab-"+t).classList.toggle("hidden",b.dataset.tab!==t));
+});
+$("addProduct").onclick=async()=>{
+ const name=$("pName").value.trim(),price=Number($("pPrice").value),qty=Number($("pQty").value);
+ if(!name||!Number.isFinite(price)||price<0||!Number.isInteger(qty)||qty<0){msg("أدخل اسم المنتج والسعر والكمية بصورة صحيحة.","error");return;}
+ try{
+  await db.collection("products").add({name,price,qty,sizes:$("pSizes").value.trim(),createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  ["pName","pPrice","pQty","pSizes"].forEach(id=>$(id).value="");msg("تمت إضافة المنتج.","success");
+ }catch(e){msg("تعذرت إضافة المنتج: "+e.message,"error");}
+};
+function loadProducts(){
+ const unsub=db.collection("products").orderBy("createdAt","desc").onSnapshot(s=>{
+  const list=$("productsList"),sel=$("orderProduct");list.innerHTML="";sel.innerHTML='<option value="">اختر المنتج</option>';
+  if(s.empty)list.textContent="لا توجد منتجات حتى الآن.";
+  s.forEach(doc=>{
+   const p=doc.data(),id=doc.id;
+   const opt=document.createElement("option");opt.value=id;opt.textContent=p.name+" — المتوفر: "+p.qty;sel.appendChild(opt);
+   const el=document.createElement("div");el.className="item";
+   el.innerHTML="<h3>"+esc(p.name)+"</h3><div>"+money(p.price)+" · الكمية: <b>"+Number(p.qty||0)+"</b></div><small>المقاسات: "+esc(p.sizes||"غير محددة")+"</small><div class='row'><button class='secondary' data-act='edit'>تعديل</button><button class='secondary' data-act='plus'>+1</button><button class='secondary' data-act='minus'>-1</button><button class='danger' data-act='delete'>حذف</button></div>";
+   el.querySelector('[data-act="edit"]').onclick=()=>editProduct(id,p);
+   el.querySelector('[data-act="plus"]').onclick=()=>changeQty(id,1);
+   el.querySelector('[data-act="minus"]').onclick=()=>changeQty(id,-1);
+   el.querySelector('[data-act="delete"]').onclick=()=>deleteProduct(id,p.name);
+   list.appendChild(el);
+  });
+ },e=>msg("خطأ تحميل المنتجات: "+e.message,"error"));unsubs.push(unsub);
+}
+async function editProduct(id,p){
+ const name=prompt("اسم المنتج:",p.name);if(name===null)return;
+ const price=prompt("السعر:",p.price);if(price===null)return;
+ const qty=prompt("الكمية:",p.qty);if(qty===null)return;
+ const sizes=prompt("المقاسات:",p.sizes||"");if(sizes===null)return;
+ if(!name.trim()||!Number.isFinite(Number(price))||!Number.isInteger(Number(qty))||Number(qty)<0){msg("بيانات غير صحيحة.","error");return;}
+ try{await db.collection("products").doc(id).update({name:name.trim(),price:Number(price),qty:Number(qty),sizes,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});msg("تم تحديث المنتج.","success");}catch(e){msg(e.message,"error");}
+}
+async function changeQty(id,delta){
+ try{await db.runTransaction(async tx=>{const ref=db.collection("products").doc(id),d=await tx.get(ref);if(!d.exists)throw Error("المنتج غير موجود");const n=Number(d.data().qty||0)+delta;if(n<0)throw Error("لا يمكن أن تصبح الكمية سالبة");tx.update(ref,{qty:n,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});});}catch(e){msg(e.message,"error");}
+}
+async function deleteProduct(id,name){
+ if(!confirm("هل تريد حذف المنتج: "+name+" ؟"))return;
+ try{await db.collection("products").doc(id).delete();msg("تم حذف المنتج.","success");}catch(e){msg(e.message,"error");}
+}
+$("reserveOrder").onclick=async()=>{
+ const pid=$("orderProduct").value,qty=Number($("orderQty").value),note=$("orderNote").value.trim();
+ if(!pid||!Number.isInteger(qty)||qty<1){msg("اختر منتجاً وأدخل كمية صحيحة.","error");return;}
+ try{
+  await db.runTransaction(async tx=>{
+   const pref=db.collection("products").doc(pid),pdoc=await tx.get(pref);
+   if(!pdoc.exists)throw Error("المنتج غير موجود");
+   const p=pdoc.data(),available=Number(p.qty||0);if(available<qty)throw Error("الكمية المتوفرة غير كافية");
+   const counterRef=db.collection("settings").doc("orderCounter"),counter=await tx.get(counterRef);
+   const next=(counter.exists?Number(counter.data().value||0):0)+1;
+   const orderRef=db.collection("orders").doc();
+   tx.update(pref,{qty:available-qty,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+   tx.set(counterRef,{value:next});
+   tx.set(orderRef,{sequence:next,productId:pid,productName:p.name,price:Number(p.price||0),qty,note,status:"محجوز",createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  });
+  $("orderQty").value="1";$("orderNote").value="";msg("تم حجز الطلب وخصم الكمية تلقائياً.","success");
+ }catch(e){msg("تعذر الحجز: "+e.message,"error");}
+};
+function loadOrders(){
+ const unsub=db.collection("orders").orderBy("sequence","desc").onSnapshot(s=>{
+  const list=$("ordersList");list.innerHTML="";if(s.empty){list.textContent="لا توجد طلبات محجوزة.";return;}
+  s.forEach(doc=>{const o=doc.data(),el=document.createElement("div");el.className="item";
+   el.innerHTML="<h3>طلب رقم #"+Number(o.sequence||0)+" — "+esc(o.productName||"منتج")+"</h3><div>الكمية: "+Number(o.qty||0)+" · "+money(o.price)+"</div><small>"+esc(o.note||"دون ملاحظة")+" · الحالة: "+esc(o.status||"محجوز")+"</small><div class='row'><button class='good' data-done>إكمال الطلب</button><button class='danger' data-cancel>إلغاء وإرجاع الكمية</button></div>";
+   el.querySelector("[data-done]").onclick=()=>finishOrder(doc.id,o);
+   el.querySelector("[data-cancel]").onclick=()=>cancelOrder(doc.id,o);
+   list.appendChild(el);
+  });
+ },e=>msg("خطأ تحميل الطلبات: "+e.message,"error"));unsubs.push(unsub);
+}
+async function finishOrder(id,o){
+ if(!confirm("تأكيد إكمال الطلب رقم "+o.sequence+"؟"))return;
+ try{await db.collection("orders").doc(id).update({status:"مكتمل",completedAt:firebase.firestore.FieldValue.serverTimestamp()});msg("تم تحديث حالة الطلب.","success");}catch(e){msg(e.message,"error");}
+}
+async function cancelOrder(id,o){
+ if(!confirm("إلغاء الطلب وإرجاع الكمية إلى المخزون؟"))return;
+ try{
+  await db.runTransaction(async tx=>{
+   const orderRef=db.collection("orders").doc(id),productRef=db.collection("products").doc(o.productId);
+   const od=await tx.get(orderRef);if(!od.exists||od.data().status==="ملغى")throw Error("الطلب ملغى أو غير موجود");
+   const pd=await tx.get(productRef);
+   if(pd.exists)tx.update(productRef,{qty:Number(pd.data().qty||0)+Number(o.qty||0),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+   tx.update(orderRef,{status:"ملغى",cancelledAt:firebase.firestore.FieldValue.serverTimestamp()});
+  });msg("تم إلغاء الطلب وإرجاع الكمية.","success");
+ }catch(e){msg(e.message,"error");}
+}
+function loadOwnerViews(){
+ const r1=db.collection("pairingRequests").where("status","==","pending").onSnapshot(s=>{
+  const box=$("requestsList");box.innerHTML="";if(s.empty){box.textContent="لا توجد طلبات ربط جديدة.";return;}
+  s.forEach(d=>{const x=d.data(),el=document.createElement("div");el.className="item";
+   el.innerHTML="<b>"+esc(x.name||"هاتف")+"</b><p class='muted'>UID: "+esc(x.uid)+"</p><button class='good'>الموافقة على الربط</button>";
+   el.querySelector("button").onclick=()=>approveDevice(d.id,x.name||"هاتف");box.appendChild(el);
+  });
+ },e=>msg("تعذر قراءة طلبات الأجهزة: "+e.message,"error"));unsubs.push(r1);
+ const r2=db.collection("devices").onSnapshot(s=>{
+  const box=$("approvedList");box.innerHTML="";if(s.empty){box.textContent="لا توجد أجهزة إضافية معتمدة.";return;}
+  s.forEach(d=>{const el=document.createElement("div");el.className="item";el.textContent=(d.data().name||"هاتف")+" — "+d.id;box.appendChild(el);});
+ },e=>msg("تعذر قراءة الأجهزة: "+e.message,"error"));unsubs.push(r2);
+}
+async function approveDevice(uid,name){
+ try{
+  await db.collection("devices").doc(uid).set({uid,name,approvedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  await db.collection("pairingRequests").doc(uid).delete();
+  msg("تم اعتماد الجهاز. يمكنه الآن فتح المتجر.","success");
+ }catch(e){msg("تعذرت الموافقة: "+e.message,"error");}
+}
+boot();
+</script>
+</body>
+</html>
